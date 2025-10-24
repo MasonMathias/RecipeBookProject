@@ -8,7 +8,6 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-// Dietary tags
 enum DietTag { vegetarian, vegan, glutenFree, dairyFree, nutFree }
 extension on DietTag {
   String get label {
@@ -31,11 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _RecipeItem(id: '5', title: 'Recipe 5', tags: {DietTag.vegetarian, DietTag.nutFree}),
   ];
 
-  // Filter state
   final Set<DietTag> _selectedTags = {};
   bool _favoritesOnly = false;
 
-  // ---------- (4) ADD THIS HELPER INSIDE _HomeScreenState ----------
   String get _filterLabel {
     final tags = _selectedTags.map((t) => t.label).toList()..sort();
     final parts = <String>[];
@@ -43,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (tags.isNotEmpty) parts.addAll(tags);
     return parts.isEmpty ? 'Filters' : 'Filters: ${parts.join(', ')}';
   }
-  // ---------------------------------------------------------------
 
   @override
   void initState() {
@@ -143,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ---------- (3) REPLACE YOUR OLD FILTER UI WITH THIS DROPDOWN ----------
             SizedBox(
               width: 360,
               child: Align(
@@ -188,14 +183,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                   ],
                   child: OutlinedButton.icon(
-                    onPressed: null, // handled by PopupMenuButton
+                    onPressed: null,
                     icon: const Icon(Icons.filter_list),
                     label: Text(_filterLabel),
                   ),
                 ),
               ),
             ),
-            // ----------------------------------------------------------------------
 
             const SizedBox(height: 8),
 

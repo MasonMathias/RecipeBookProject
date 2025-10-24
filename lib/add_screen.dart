@@ -1,10 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'details_screen.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
-
   @override
   State<AddScreen> createState() => _AddScreenState();
 }
@@ -30,13 +28,11 @@ class _AddScreenState extends State<AddScreen> {
 
   void _confirm() {
     if (!_formKey.currentState!.validate()) return;
-
     final details = RecipeDetails(
       nutritionFacts: _splitLines(_nutritionCtrl.text),
       ingredients: _splitLines(_ingredientsCtrl.text),
       instructions: _splitLines(_instructionsCtrl.text),
     );
-
     final name = _nameCtrl.text.trim();
     Navigator.pop(context, {'details': details, 'title': name});
   }
@@ -51,6 +47,7 @@ class _AddScreenState extends State<AddScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+
               _Section(
                 'Name',
                 child: TextFormField(
@@ -64,6 +61,7 @@ class _AddScreenState extends State<AddScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
               _Section(
                 'Ingredients',
                 child: TextFormField(
@@ -78,6 +76,7 @@ class _AddScreenState extends State<AddScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
               _Section(
                 'Nutrition Facts',
                 child: TextFormField(
@@ -93,6 +92,7 @@ class _AddScreenState extends State<AddScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
               _Section(
                 'Instructions',
                 child: TextFormField(
@@ -107,6 +107,7 @@ class _AddScreenState extends State<AddScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+
               Row(
                 children: [
                   Expanded(
@@ -124,6 +125,7 @@ class _AddScreenState extends State<AddScreen> {
                   ),
                 ],
               ),
+
             ],
           ),
         ),
@@ -136,7 +138,6 @@ class _Section extends StatelessWidget {
   final String title;
   final Widget child;
   const _Section(this.title, {required this.child});
-
   @override
   Widget build(BuildContext context) {
     return Column(

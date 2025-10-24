@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'details_screen.dart';
+import 'add_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -16,6 +17,11 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments as Map<String, String>;
           return MaterialPageRoute(
             builder: (_) => DetailsScreen(id: args['id']!, title: args['title']!),
+          );
+        }
+        if (settings.name == '/add') {
+          return MaterialPageRoute(
+            builder: (_) => const AddScreen()
           );
         }
         return MaterialPageRoute(builder: (_) => const HomeScreen());

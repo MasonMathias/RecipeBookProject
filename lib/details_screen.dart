@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'recipe_store.dart';
 
 class RecipeDetails {
   final List<String> nutritionFacts;
@@ -67,7 +68,9 @@ class DetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = kRecipeDetailsById[id];
+    RecipeStore.init(kRecipeDetailsById);
+
+    final data = RecipeStore.I.getById(id);
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),

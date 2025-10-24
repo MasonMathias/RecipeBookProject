@@ -27,11 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _goToAdd() async {
     final result = await Navigator.pushNamed(context, '/add');
     if (!mounted) return;
-
     if (result is Map && result['details'] is RecipeDetails && result['title'] is String) {
       final details = result['details'] as RecipeDetails;
       final title = (result['title'] as String).trim();
-
       final added = RecipeStore.I.add(details, title: title);
       setState(() {
         _recipes.add(_RecipeItem(id: added.id, title: added.title));
@@ -42,6 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _removeAt(int index) {
     setState(() => _recipes.removeAt(index));
+  }
+
+  void _toggleFavorite(int index) {
+    setState(() => _recipes[index] = _recipes[index].copyWith(favorite: !_recipes[index].favorite));
   }
 
   @override
@@ -69,13 +71,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       dense: true,
                       title: Text(r.title),
                       onTap: () => _goToDetails(context, r.id, r.title),
-                      trailing: Tooltip(
-                        message: 'Delete',
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(shape: const CircleBorder()),
-                          onPressed: () => _removeAt(i),
-                          child: const Icon(Icons.remove),
-                        ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Tooltip(
+                            message: r.favorite ? 'Unfavorite' : 'Favorite',
+                            child: IconButton(
+                              onPressed: () => _toggleFavorite(i),
+                              icon: Icon(r.favorite ? Icons.star : Icons.star_border),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Tooltip(
+                            message: 'Delete',
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(shape: const CircleBorder()),
+                              onPressed: () => _removeAt(i),
+                              child: const Icon(Icons.remove),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -99,5 +114,11 @@ class _HomeScreenState extends State<HomeScreen> {
 class _RecipeItem {
   final String id;
   final String title;
-  _RecipeItem({required this.id, required this.title});
+  final bool favorite;
+  _RecipeItem({required this.id, required this.title, this.favorite = false});
+  _RecipeItem copyWith({String? id, String? title, bool? favorite}) => _RecipeItem(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        favorite: favorite ?? this.favorite,
+      );
 }

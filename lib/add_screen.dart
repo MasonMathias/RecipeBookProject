@@ -135,7 +135,7 @@ class _AddScreenState extends State<AddScreen> {
 class _Section extends StatelessWidget {
   final String title;
   final Widget child;
-  const _Section(this.title, {required this.child, super.key});
+  const _Section(this.title, {required this.child});
 
   @override
   Widget build(BuildContext context) {

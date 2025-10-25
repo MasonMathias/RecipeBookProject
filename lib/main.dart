@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'details_screen.dart';
 import 'add_screen.dart';
+import 'grocery_planner.dart';
 
 void main() => runApp(const MyApp());
 
@@ -23,6 +24,9 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(
             builder: (_) => const AddScreen()
           );
+        }
+        if (settings.name == '/plan') {
+          return GroceryPlannerScreen.routeFromArgs(settings);
         }
         return MaterialPageRoute(builder: (_) => const HomeScreen());
       },

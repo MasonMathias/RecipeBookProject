@@ -248,7 +248,21 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: _goToAdd, child: const Icon(Icons.add)),
+                ElevatedButton(
+                  onPressed: _goToAdd, child: const Icon(Icons.add)
+                ),
+
+                const SizedBox(width: 12),
+
+                ElevatedButton(
+                  onPressed: () {
+                    final recipesArg = _recipes
+                        .map((r) => {'id': r.id, 'title': r.title})
+                        .toList(growable: false);
+                    Navigator.pushNamed(context, '/plan', arguments: {'recipes': recipesArg});
+                  },
+                  child: const Icon(Icons.list_alt),
+                ),
               ],
             ),
           ],

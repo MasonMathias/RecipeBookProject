@@ -22,13 +22,7 @@ extension on DietTag {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<_RecipeItem> _recipes = [
-    _RecipeItem(id: '1', title: 'Recipe 1', tags: {DietTag.vegetarian}),
-    _RecipeItem(id: '2', title: 'Recipe 2', tags: {DietTag.vegan, DietTag.glutenFree}),
-    _RecipeItem(id: '3', title: 'Recipe 3', tags: {DietTag.glutenFree, DietTag.dairyFree}),
-    _RecipeItem(id: '4', title: 'Recipe 4', tags: {DietTag.nutFree}),
-    _RecipeItem(id: '5', title: 'Recipe 5', tags: {DietTag.vegetarian, DietTag.nutFree}),
-  ];
+  final List<_RecipeItem> _recipes = [];
 
   final Set<DietTag> _selectedTags = {};
   bool _favoritesOnly = false;
@@ -41,12 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return parts.isEmpty ? 'Filters' : 'Filters: ${parts.join(', ')}';
   }
 
-  @override
-  void initState() {
-    super.initState();
-    RecipeStore.init(kRecipeDetailsById);
-  }
-
   List<_RecipeItem> get _visible {
     return _recipes.where((r) {
       final favOk = !_favoritesOnly || r.favorite;
@@ -54,6 +42,43 @@ class _HomeScreenState extends State<HomeScreen> {
       return favOk && tagsOk;
     }).toList();
   }
+
+  @override
+  void initState() {
+    super.initState();
+    RecipeStore.init(kRecipeDetailsById);
+    _initLoad();
+  }
+
+  Future<void> _initLoad() async {
+    await RecipeStore.I.load();
+    setState(() {
+      _recipes
+        ..clear()
+        ..addAll(RecipeStore.I.metas.map((m) => _RecipeItem(
+              id: m.id,
+              title: m.title,
+              favorite: m.favorite,
+              tags: m.tags.map(_stringToDietTag).whereType<DietTag>().toSet(),
+            )));
+    });
+  }
+
+  String _dietTagToString(DietTag t) => switch (t) {
+        DietTag.vegetarian => 'vegetarian',
+        DietTag.vegan => 'vegan',
+        DietTag.glutenFree => 'glutenFree',
+        DietTag.dairyFree => 'dairyFree',
+        DietTag.nutFree => 'nutFree',
+      };
+  DietTag? _stringToDietTag(String s) => switch (s) {
+        'vegetarian' => DietTag.vegetarian,
+        'vegan' => DietTag.vegan,
+        'glutenFree' => DietTag.glutenFree,
+        'dairyFree' => DietTag.dairyFree,
+        'nutFree' => DietTag.nutFree,
+        _ => null,
+      };
 
   void _goToDetails(BuildContext context, String id, String title) {
     Navigator.pushNamed(context, '/details', arguments: {'id': id, 'title': title});
@@ -66,21 +91,28 @@ class _HomeScreenState extends State<HomeScreen> {
       final details = result['details'] as RecipeDetails;
       final title = (result['title'] as String).trim();
       final added = RecipeStore.I.add(details, title: title);
+      await RecipeStore.I.save();
       setState(() => _recipes.add(_RecipeItem(id: added.id, title: added.title)));
       _goToDetails(context, added.id, added.title);
     }
   }
 
-  void _removeAt(int indexInVisible) {
-    final item = _visible[indexInVisible];
-    final realIndex = _recipes.indexWhere((r) => r.id == item.id);
-    if (realIndex >= 0) setState(() => _recipes.removeAt(realIndex));
-  }
-
-  void _toggleFavorite(int indexInVisible) {
+  Future<void> _removeAt(int indexInVisible) async {
     final item = _visible[indexInVisible];
     final realIndex = _recipes.indexWhere((r) => r.id == item.id);
     if (realIndex >= 0) {
+      RecipeStore.I.remove(item.id);
+      await RecipeStore.I.save();
+      setState(() => _recipes.removeAt(realIndex));
+    }
+  }
+
+  Future<void> _toggleFavorite(int indexInVisible) async {
+    final item = _visible[indexInVisible];
+    final realIndex = _recipes.indexWhere((r) => r.id == item.id);
+    if (realIndex >= 0) {
+      RecipeStore.I.toggleFavorite(item.id);
+      await RecipeStore.I.save();
       setState(() {
         _recipes[realIndex] =
             _recipes[realIndex].copyWith(favorite: !_recipes[realIndex].favorite);
@@ -88,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _editTags(_RecipeItem item) async {
+  Future<void> _editTags(_RecipeItem item) async {
     final current = Set<DietTag>.from(item.tags);
     final updated = await showModalBottomSheet<Set<DietTag>>(
       context: context,
@@ -127,6 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (updated != null) {
+      RecipeStore.I.setTags(item.id, updated.map(_dietTagToString).toSet());
+      await RecipeStore.I.save();
       final idx = _recipes.indexWhere((r) => r.id == item.id);
       if (idx >= 0) setState(() => _recipes[idx] = _recipes[idx].copyWith(tags: updated));
     }
@@ -248,12 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: _goToAdd, child: const Icon(Icons.add)
-                ),
-
+                ElevatedButton(onPressed: _goToAdd, child: const Icon(Icons.add)),
                 const SizedBox(width: 12),
-
                 ElevatedButton(
                   onPressed: () {
                     final recipesArg = _recipes

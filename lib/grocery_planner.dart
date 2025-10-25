@@ -3,7 +3,6 @@ import 'recipe_store.dart';
 
 class GroceryPlannerScreen extends StatefulWidget {
   final List<({String id, String title})> recipes;
-
   const GroceryPlannerScreen({super.key, required this.recipes});
 
   static Route<dynamic> routeFromArgs(RouteSettings settings) {
@@ -29,6 +28,29 @@ class _GroceryPlannerScreenState extends State<GroceryPlannerScreen> {
   final Set<String> _selectedIds = {};
   final Map<String, bool> _checked = {};
 
+  @override
+  void initState() {
+    super.initState();
+    _loadGrocery();
+  }
+
+  Future<void> _loadGrocery() async {
+    await RecipeStore.I.load();
+    final g = RecipeStore.I.grocery;
+    setState(() {
+      _selectedIds
+        ..clear()
+        ..addAll(g.selectedIds);
+      _checked
+        ..clear()
+        ..addAll(g.checked);
+    });
+  }
+
+  void _persistGrocery() {
+    RecipeStore.I.save();
+  }
+
   List<String> get _ingredients {
     final seen = <String>{};
     final out = <String>[];
@@ -41,7 +63,6 @@ class _GroceryPlannerScreenState extends State<GroceryPlannerScreen> {
         if (seen.add(t)) out.add(t);
       }
     }
-
     for (final ing in out) {
       _checked.putIfAbsent(ing, () => false);
     }
@@ -57,6 +78,8 @@ class _GroceryPlannerScreenState extends State<GroceryPlannerScreen> {
         _selectedIds.add(id);
       }
     });
+    RecipeStore.I.setGrocerySelected(_selectedIds);
+    _persistGrocery();
   }
 
   void _setAll(bool value) {
@@ -65,6 +88,8 @@ class _GroceryPlannerScreenState extends State<GroceryPlannerScreen> {
         _checked[k] = value;
       }
     });
+    RecipeStore.I.setGroceryChecked(_checked);
+    _persistGrocery();
   }
 
   @override
@@ -82,7 +107,11 @@ class _GroceryPlannerScreenState extends State<GroceryPlannerScreen> {
           final right = _IngredientsPane(
             ingredients: _ingredients,
             checked: _checked,
-            onToggle: (k, v) => setState(() => _checked[k] = v),
+            onToggle: (k, v) {
+              setState(() => _checked[k] = v);
+              RecipeStore.I.setGroceryChecked(_checked);
+              _persistGrocery();
+            },
             onSelectAll: () => _setAll(true),
             onClearAll: () => _setAll(false),
           );

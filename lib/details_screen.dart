@@ -41,24 +41,6 @@ const Map<String, RecipeDetails> kRecipeDetailsById = {
       'Instruction 3',
     ],
   ),
-  '4': RecipeDetails(
-    nutritionFacts: ['4 servings', '100 kcal', '25g carbs', '6g protein'],
-    ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3', 'Ingredient 4', 'Ingredient 5'],
-    instructions: [
-      'Instruction 1',
-      'Instruction 2',
-      'Instruction 3',
-    ],
-  ),
-  '5': RecipeDetails(
-    nutritionFacts: ['5 servings', '100 kcal', '25g carbs', '6g protein'],
-    ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3', 'Ingredient 4', 'Ingredient 5'],
-    instructions: [
-      'Instruction 1',
-      'Instruction 2',
-      'Instruction 3',
-    ],
-  ),
 };
 
 class DetailsScreen extends StatelessWidget {

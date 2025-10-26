@@ -1,4 +1,3 @@
-// recipe_store.dart
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'details_screen.dart';
@@ -21,6 +20,7 @@ class RecipeMeta {
     'favorite': favorite,
     'tags': tags.toList(),
   };
+  
   factory RecipeMeta.fromJson(Map<String, dynamic> m) => RecipeMeta(
     id: m['id'] as String,
     title: m['title'] as String,
